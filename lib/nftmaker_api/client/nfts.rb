@@ -8,7 +8,7 @@ module NftmakerApi
     def list(state: :all)
       @client.get "GetNfts/#{@client.api_key}/#{@project_id}/#{state}"
     end
-    alias :all :list
+    alias_method :all, :list
 
     def free
       list(state: :free)

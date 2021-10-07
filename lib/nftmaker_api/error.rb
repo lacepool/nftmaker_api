@@ -7,6 +7,7 @@ module NftmakerApi
     def to_s
       ["#{status} #{status_phrase}", reason].compact.join(", ")
     end
+    alias_method :full_message, :to_s
 
     def status
       @response.original.status
