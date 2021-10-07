@@ -1,8 +1,8 @@
 # NftmakerApi
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/nftmaker_api`. To experiment with that code, run `bin/console` for an interactive prompt.
+A Ruby client for the https://nft-maker.io/pro API.
 
-TODO: Delete this and the text above, and describe your gem
+It aims to support all API methods. The intuitive query methods allow to easily call the API endpoints.
 
 ## Installation
 
@@ -20,21 +20,141 @@ Or install it yourself as:
 
     $ gem install nftmaker_api
 
-## Usage
+## Configuration
 
-TODO: Write usage instructions here
+The configuration options can be set by using the `configure` block
 
-## Development
+```ruby
+NftmakerApi.configure do |config|
+  config.api_key = ENV.fetch('NFT_MAKER_PRO_API_KEY')
+end
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Alternatively, you can configure the settings by passing a hash of options to an instance like so
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+client = NftmakerApi.new api_key: "xyz",
+                         http_adapter: :typheous
+```
 
-## Contributing
+The following is the list of available configuration options
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/nftmaker_api.
+```ruby
+api_key      # The API key provided by nft-maker.io
+http_adapter # The http client used for performing requests. Default :net_http
+host         # The API endpoint. Default: https://api.nft-maker.io
+```
+
+## 1 Usage
+
+To start using the gem, you first create a new client instance
+
+```ruby
+client = NftmakerApi.new
+```
+
+and then you call the methods for the API endpoints.
+
+### 1.1 Endpoints
+
+List all projects
+
+```ruby
+client.projects.list
+```
+
+Show metrics for a project
+
+```ruby
+client.project(1634).metrics
+```
+
+List all NFTs for a project
+
+```ruby
+client.project(1634).nfts.list     # all
+client.project(1634).nfts.sold     # only sold
+client.project(1634).nfts.free     # only free
+client.project(1634).nfts.reserved # only reserved
+```
+
+Create a new project
+
+```ruby
+client.projects.create(name: "Foo", policy_expires: true, policy_locks_at: Time.now.advance(months: 6), address_expires_in: 10)
+```
+
+Reserve NFT(s) from a project
+
+```ruby
+client.project(1634).reservations.create(nft_count: 1, lovelace: 10_000000)              # Reserve a random NFT
+client.project(1634).reservations.create(nft_id: 123, nft_count: 1, lovelace: 10_000000) # Reserve a specific NFT
+```
+
+Check / Cancel a reservation
+
+```ruby
+client.project(1634).reservation("addr1...").check
+client.project(1634).reservation("addr1...").cancel
+```
+
+## 2 Response Handling
+
+Responses are wrapped into a `NftmakerApi::Response` object. The main reason is to allow direct access to the parsed JSON response body.
+
+Sidenote: The JSON body is parsed using [Oj](https://github.com/ohler55/oj) which is a C implementation, hence much faster than [JSON from Ruby's Standard Library](https://ruby-doc.org/stdlib-3.0.2/libdoc/json/rdoc/JSON.html).
 
 
-## License
+
+```ruby
+client.projects.list.to_h
+# => [{"id"=>123, "projectname" => "Foo", ...}, ...]
+```
+
+Access the original faraday response object
+
+```ruby
+client.projects.list.original_response
+```
+
+### 2.1 Errors
+
+Check if the request was successful or returned an error
+
+```ruby
+client.projects.list.success?
+client.projects.list.error?
+```
+
+Response errors are always `NftmakerApi::Error` objects.
+
+```ruby
+client.projects.list.error
+```
+
+Show error message including status code, status phrase and the actual error message from the API
+
+```ruby
+client.projects.list.error.full_message
+```
+
+Show status code
+
+```ruby
+client.projects.list.error.status
+```
+
+Show error message returned from the API
+
+```ruby
+client.projects.list.error.reason
+```
+
+## 3 Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/lacepool/nftmaker_api. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the Contributor Covenant code of conduct.
+
+
+## 4 License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
