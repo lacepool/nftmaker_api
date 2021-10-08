@@ -8,7 +8,7 @@ module NftmakerApi
       body = {projectname: name, maxNftSupply: 1, policyExpires: policy_expires, addressExpiretime: address_expires_in}
       body.merge!({ policyLocksDateTime: policy_locks_at.iso8601 }) if policy_expires
 
-      @client.post "/CreateProject/#{@client.api_key}", body.to_json
+      @client.post "/CreateProject/#{@client.api_key}", body
     end
 
     def list

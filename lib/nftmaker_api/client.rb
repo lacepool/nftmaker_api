@@ -39,7 +39,7 @@ module NftmakerApi
 
     def post(endpoint, body)
       response = http_client.post(endpoint) do |req|
-        req.body = Oj.dump(body)
+        req.body = Oj.dump(body, mode: :compat)
       end
 
       @last_response = Response.new(response)
