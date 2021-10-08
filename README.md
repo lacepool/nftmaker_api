@@ -36,7 +36,7 @@ Alternatively, you can configure the settings by passing a hash of options to an
 
 ```ruby
 client = NftmakerApi.new api_key: "xyz",
-                         http_adapter: :typheous
+                         http_adapter: :typhoeus
 ```
 
 The following is the list of available configuration options
