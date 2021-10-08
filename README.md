@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/lacepool/nftmaker_api/workflows/CI/badge.svg?branch=main)](https://github.com/lacepool/nftmaker_api/actions)
+
 # NftmakerApi
 
 A Ruby client for the https://nft-maker.io/pro API.
