@@ -1,3 +1,5 @@
+require_relative "../nft_file"
+
 module NftmakerApi
   class Client::Nfts
     def initialize(client, project_id: nil)
@@ -5,21 +7,19 @@ module NftmakerApi
       @project_id = project_id
     end
 
-    def create(name:, file_url:, mime_type:, description: nil, metadata_vars: nil)
-      file_url_hash = if file_url.start_with? "ipfs"
-        { fileFromIPFS: file_url }
-      else
-        { fileFromsUrl: file_url }
+    def create(asset_name:, preview_file:, files: [])
+      unless preview_file.respond_to?(:to_h)
+        raise ArgumentError "preview_file parameter was given #{preview_file} as an argument but does not implement #to_h method."
       end
 
-      body = {
-        assetName: name,
-        previewImageNft: {
-          mimetype: mime_type,
-          description: description,
-          metadataPlaceholder: metadata_vars,
-        }.merge!(file_url_hash)
-      }
+      unless files.respond_to?(:any?)
+        raise ArgumentError "files parameter was given #{files} as an argument but does not seem to quack like an array."
+      end
+
+      subfiles = {}
+      subfiles[:subfiles] = files.map(&:to_h) if files.any?
+
+      body = { assetName: asset_name, previewImageNft: preview_file.to_h }.merge!(subfiles)
 
       @client.post "UploadNft/#{@client.api_key}/#{@project_id}", body
     end

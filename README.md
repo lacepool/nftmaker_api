@@ -80,6 +80,59 @@ client.project(1634).nfts.free     # only free
 client.project(1634).nfts.reserved # only reserved
 ```
 
+Create NFTS for a project
+
+Please note: The API expects metadata variables to be passed with the files even though they're not only applied within the scope of the files. By passing variables with the preview image you can also replace placeholders unrelated to the image.
+
+```ruby
+
+vars = {
+  custom_name: "StarTrek Series #1",
+  creature: "Vulcan",
+  traits: "pointed ears, green blood, slanted eyebrows"
+}
+
+thumbnail = NftmakerApi::NftFile.new(url: "https://xyz.com/thumbnail.png", variables: vars, mime_type: "image/png")
+highres_1 = NftmakerApi::NftFile.new(url: "https://xyz.com/highres_1.png", mime_type: "image/png")
+highres_2 = NftmakerApi::NftFile.new(url: "https://xyz.com/highres_2.png", mime_type: "image/png")
+
+client.project(1634).nfts.create(
+  asset_name: "StarTrek01",
+  preview_file: thumbnail,
+  files: [highres_file_1, highres_file_2]
+)
+
+# This results in following metadata
+
+{
+  "721": {
+    "a0a7f00ccd9344d15ca0c7eb22c326979f7d65690266afcb128332db": {
+      "StarTrek01": {
+        "name": "StarTrek Series #1",
+        "image": "ifps://xyzThumbnail",
+        "mediaType": "image/png",
+        "creature": "Vulcan",
+        "traits": "pointed ears, green blood, slanted eyebrows",
+        "files": [
+          {
+            "name": "StarTrek Series #1",
+            "mediaType": "image/png",
+            "src": "ipfs://xyzHighres1"
+          },
+          {
+            "name": "StarTrek Series #1",
+            "mediaType": "image/png",
+            "src": "ipfs://xyzHighres2"
+          }
+        ]
+      }
+    },
+    "version": "1.0"
+  }
+}
+
+```
+
 Create a new project
 
 ```ruby
