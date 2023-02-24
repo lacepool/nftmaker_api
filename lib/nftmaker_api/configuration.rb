@@ -7,7 +7,7 @@ module NftmakerApi
     def configuration_defaults
       {
         api_key: nil,
-        host: "https://api.nft-maker.io",
+        host: "https://studio-api.nmkr.io",
         http_adapter: Faraday.default_adapter
       }
     end
